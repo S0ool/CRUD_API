@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post Manager</title>
+</head>
+<body>
+    <h1>Post Manager</h1>
+
+    <h2>Create New Post</h2>
+    <input type="text" id="postName" placeholder="Enter post name">
+    <button id="createButton">Create Post</button>
+
+    <h2>Posts</h2>
+    <button id="refreshButton">Refresh Posts</button>
+    <ul id="postList"></ul>
+
+    <h2>Update Post</h2>
+    <input type="number" id="updateId" placeholder="Enter post ID">
+    <input type="text" id="updateName" placeholder="Enter new post name">
+    <button id="updateButton">Update Post</button>
+
+    <h2>Delete Post</h2>
+    <input type="number" id="deleteId" placeholder="Enter post ID">
+    <button id="deleteButton">Delete Post</button>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8000/'
+        const getPosts = () => {
+            fetch(API_URL+'api/v1/posts/')
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector('#postList').innerHTML = data.map(post =>
+                        `<li>ID: ${post.id}, Name: ${post.name}</li>`
+                    ).join('')
+                })
+        }
+
+        const createPost = () => {
+            const name = document.querySelector('#postName').value
+            fetch(API_URL+'api/v1/posts/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name }),
+            })
+            .then(response => response.json())
+            .then(() => getPosts())
+        }
+
+        const updatePost = () => {
+            const id = document.querySelector('#updateId').value
+            const name = document.querySelector('#updateName').value
+            fetch(`${API_URL}api/v1/posts/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name }),
+            })
+            .then(response => response.json())
+            .then(() => getPosts())
+        }
+
+        const deletePost = () => {
+            const id = document.querySelector('#deleteId').value
+            fetch(`${API_URL}api/v1/posts/${id}`, {
+                method: 'DELETE',
+            })
+            .then(() => getPosts())
+        }
+
+        document.querySelector('#createButton').onclick = createPost
+        document.querySelector('#refreshButton').onclick = getPosts
+        document.querySelector('#updateButton').onclick = updatePost
+        document.querySelector('#deleteButton').onclick = deletePost
+
+        getPosts()
+    </script>
+</body>
+</html>
